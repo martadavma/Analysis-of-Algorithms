@@ -11,7 +11,7 @@ TASKS TO DO:
 5. Create Efficient.java + Main method - 4 ---> Yen
 6. Develop compute optimal - 8 ---> Marta
 7. Develop divide method - 10 ---> Peter 
-8. Develop conquer method - 10 ---> Marra
+8. Develop conquer method - 10 ---> Marta
 9. Develop Ouput generator - 15 ---> Peter
 10. Execute code + do graphs for report - 20 ---> Yen
 11. Write report - 20 --> Marta
