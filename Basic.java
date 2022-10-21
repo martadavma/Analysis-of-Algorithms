@@ -6,19 +6,35 @@
 
 public class Basic {
 
-    // Main method
+    // sequence A
+    public static byte[] sequenceA;
+
+    // length of sequence A
+    public static int lenSequenceA;
+
+    // sequence B
+    public static byte[] sequenceB;
+
+    // length of sequence B
+    public static int lenSequenceB;
+
+    /**
+     * Main method
+     * 
+     * @param args
+     */
     public static void main (String[] args) {
 
         // create InputExtract instance
         InputExtract inputExtract = new InputExtract(args);
-        byte[] sequenceA = inputExtract.getSequenceA();
-        byte[] sequenceB = inputExtract.getSequenceB();
+        sequenceA = inputExtract.getSequenceA();
+        sequenceB = inputExtract.getSequenceB();
 
         // compute M from both sequences
-        int[][][] m = computeM(sequenceA, sequenceB);
+        int[][][][] m = computeM(sequenceA, sequenceB);
 
         // compute the final optimal alignment
-        byte[] optAlignment = computeOptimalAlignment(m);
+        byte[][] optAlignment = computeOptimalAlignment(m);
 
         // OuputGenerator overwrites the output.txt file.
         // Basic can terminate afterwards
@@ -32,7 +48,7 @@ public class Basic {
      * input: initalMatrix
      * output: M matrix (#TODO: I put 3 dimentions, this can be changed)
      */
-    public static int[][][] computeM(byte[] sequenceA, byte[] sequenceB){
+    public static int[][][][] computeM(byte[] sequenceA, byte[] sequenceB){
 
         return null;
     }
@@ -42,7 +58,32 @@ public class Basic {
      * input: matrix M
      * output: array with opotimal sequence alignment
      */
-    public static byte[] computeOptimalAlignment(int[][][] m){
+    public static byte[][] computeOptimalAlignment(int[][][][] m){
+        // The best is at position M(i=0, j=n-1)
+        // We are going to do recursion through M to get the actual best 
+        int x = 100; //TODO: find way to get this max
+        byte[][] opt = findNextOpt(m, 0, m[0].length, new byte[2][x]);
+        return opt;
+    }
+
+    /**
+     * Tail recursive method to avoid memory waist
+     * 
+     * @param m
+     * @param i
+     * @param j
+     * @param currentOpt
+     * @return
+     */
+    public static byte[][] findNextOpt(int[][][][] m, int i, int j, byte[][] currentOpt){
+        if (i == 0 && j == 0  ){
+            return currentOpt;
+        }
+        else if (m[i][j][lenSequenceA][lenSequenceB] == m[i-1][j][lenSequenceA][lenSequenceB]){
+            
+        }
+        
+
 
         return null;
     }
