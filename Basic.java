@@ -2,7 +2,7 @@
  * 
  * Given an input.txt file it performs the necessary operations to fill
  * the given output.txt with the optimal sequence alignmenet for DNA.
- */
+ */ 
 
 public class Basic {
 
@@ -18,12 +18,18 @@ public class Basic {
     // length of sequence B
     public static int lenSequenceB;
 
+    // matrix containing all alpha 0 = A, 1 = T, 2 = C, 3 = G.
+    public static int[][] alpha;
+
+    // delta, cost of puting a space
+    public static int delta;
+
     /**
      * Main method
      * 
      * @param args
      */
-    public static void main (String[] args) {
+    public static void main(String[] args) {
 
         // create InputExtract instance
         InputExtract inputExtract = new InputExtract(args);
@@ -31,7 +37,7 @@ public class Basic {
         sequenceB = inputExtract.getSequenceB();
 
         // compute M from both sequences
-        int[][][][] m = computeM(sequenceA, sequenceB);
+        int[][] m = computeM(sequenceA, sequenceB);
 
         // compute the final optimal alignment
         byte[][] optAlignment = computeOptimalAlignment(m);
@@ -43,26 +49,28 @@ public class Basic {
         // terminate
     }
 
-    /* This method generates the M matrix
+    /*
+     * This method generates the M matrix
      * 
      * input: initalMatrix
      * output: M matrix (#TODO: I put 3 dimentions, this can be changed)
      */
-    public static int[][][][] computeM(byte[] sequenceA, byte[] sequenceB){
+    public static int[][][][] computeM(byte[] sequenceA, byte[] sequenceB) {
 
         return null;
     }
 
-    /* This method computes the final optimal aligment given matrix M
+    /*
+     * This method computes the final optimal aligment given matrix M
      * 
      * input: matrix M
      * output: array with opotimal sequence alignment
      */
-    public static byte[][] computeOptimalAlignment(int[][][][] m){
-        // The best is at position M(i=0, j=n-1)
-        // We are going to do recursion through M to get the actual best 
-        int x = 100; //TODO: find way to get this max
-        byte[][] opt = findNextOpt(m, 0, m[0].length, new byte[2][x]);
+    public static byte[][] computeOptimalAlignment(int[][] m) {
+        // The best is at position M(i=n, j=m)
+        // We are going to do recursion through M to get the actual best
+        byte[][] opt = findNextOpt(m, lenSequenceA, lenSequenceB,
+                new byte[2][lenSequenceA + lenSequenceB], lenSequenceA + lenSequenceB);
         return opt;
     }
 
@@ -74,17 +82,35 @@ public class Basic {
      * @param j
      * @param currentOpt
      * @return
+     *  0 = A, 1 = T, 2 = C, 3 = G, " " = 4
      */
-    public static byte[][] findNextOpt(int[][][][] m, int i, int j, byte[][] currentOpt){
+    public static byte[][] findNextOpt(int[][] m, int i, int j, byte[][] currentOpt, 
+        int counter){
+        // recursion done, solution find.
         if (i == 0 && j == 0  ){
             return currentOpt;
         }
-        else if (m[i][j][lenSequenceA][lenSequenceB] == m[i-1][j][lenSequenceA][lenSequenceB]){
-            
+
+        // on alpha matrix 0 = A, 1 = T, 2 = C, 3 = G.
+        // match i with j
+        else if (m[i][j] == (alpha[sequenceA[i]][sequenceB[j]] + m[i-1][j-1])){
+            currentOpt[0][counter] = sequenceA[i];
+            currentOpt[1][counter] = sequenceB[j];
+            return findNextOpt(m, i-1, j-1, currentOpt, counter -1);
+        }
+
+        // space in sequence B
+        else if (m[i][j] == (delta + m[i-1][j])){
+            currentOpt[0][counter] = sequenceA[i];
+            currentOpt[1][counter] = 4;
+            return findNextOpt(m, i-1, j, currentOpt, counter -1);
         }
         
-
-
-        return null;
+        // space in sequence B
+        else {// if (m[i][j] == (delta + m[i][j-1])){
+            currentOpt[0][counter] = 4;
+            currentOpt[1][counter] = sequenceA[j];
+            return findNextOpt(m, i, j-1, currentOpt, counter - 1);
+        }
     }
 }
