@@ -9,7 +9,8 @@ TASKS TO DO:
 3. Create Basic.java + Main method - 4 ---> Marta     || DONE
 4. Develop compute M method - 15 ---> Yen
 5. Create Efficient.java + Main method - 4 ---> Yen
-6. Develop compute optimal - 8 ---> Marta
+6. Develop compute optimal - 8 ---> Marta     || DONE
+    6.1. Test compute optimal 
 7. Develop divide method - 10 ---> Peter 
 8. Develop conquer method - 10 ---> Marta
 9. Develop Ouput generator - 15 ---> Peter
