@@ -10,6 +10,7 @@ TASKS TO DO:
 4. Develop compute M method - 15 ---> Yen
 5. Create Efficient.java + Main method - 4 ---> Yen
 6. Develop compute optimal - 8 ---> Marta     || DONE
+
     6.1. Test compute optimal 
 7. Develop divide method - 10 ---> Peter 
 8. Develop conquer method - 10 ---> Marta
