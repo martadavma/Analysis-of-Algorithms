@@ -20,5 +20,7 @@ TASKS TO DO:
 12. Create ssh file - 2 --> Peter
 
 Sameple Instruction to run the program for now (subject to change later):
+
 javac Basic2.java
+
 java Basic2 ../SampleTestCases/input1.txt
