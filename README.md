@@ -8,7 +8,7 @@ TASKS TO DO:
 2. Develop input extractor - 20 --> Peter
 3. Create Basic.java + Main method - 4 ---> Marta     || DONE
 4. Develop compute M method - 15 ---> Yen || DONE
-5. Create Efficient.java + Main method - 4 ---> Yen
+5. Create Efficient.java + Main method - 4 ---> Yen || DONE
 6. Develop compute optimal - 8 ---> Marta     || DONE
 
     6.1. Test compute optimal 
