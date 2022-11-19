@@ -7,7 +7,7 @@ TASKS TO DO:
 1. Create github - 3 --> Marta                        || DONE
 2. Develop input extractor - 20 --> Peter
 3. Create Basic.java + Main method - 4 ---> Marta     || DONE
-4. Develop compute M method - 15 ---> Yen
+4. Develop compute M method - 15 ---> Yen || DONE
 5. Create Efficient.java + Main method - 4 ---> Yen
 6. Develop compute optimal - 8 ---> Marta     || DONE
 
@@ -18,4 +18,3 @@ TASKS TO DO:
 10. Execute code + do graphs for report - 20 ---> Yen
 11. Write report - 20 --> Marta
 12. Create ssh file - 2 --> Peter
-
