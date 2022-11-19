@@ -63,17 +63,6 @@ public class Basic2 {
       }
       return s;
    }
-
-   /**private static int[][] tableMIntialization (String x, String y){
-      int m = x.length();
-      int n = y.length();
-      int tableSize = n + m + 1;
-      int tableM[][] = new int [tableSize][tableSize];
-      return tableM;
-   }
-    */
-
-
 }
 class InputExtract
 {
@@ -191,14 +180,19 @@ class InputExtract
    }
 }
 
+/**
+ * MinimumPenalty class computes the minimum penalty of an alignment between sequence X and Sequence Y.
+ */
 class MinimumPenalty{
+
    private final static int pGap = 30;
    private int[][] tableM;
    private String sequence1;
    private String sequence2;
 
-
-
+   /**
+    * Construct MinimumPenalty object using String x and String y.
+    */
    public MinimumPenalty(String x, String y){
       sequence1 = x;
       sequence2 = y;
@@ -206,6 +200,9 @@ class MinimumPenalty{
       tableM = new int [tableSize][tableSize];
    }
 
+   /**
+    * Get mismatch penalty between char x and char y.
+    */
    private int getMismatchPenalty(char x, char y){
       int mismatch = 0;
 
@@ -233,6 +230,9 @@ class MinimumPenalty{
       return mismatch;
    }
 
+   /**
+    * Compute and return the minimum penalty using MinimumPenalty object.
+    */
    public int getMinimumPenalty(){
       for (int i = 1; i <= sequence1.length(); i++){
          for (int j = 1; j <= sequence2.length(); j++){
