@@ -18,3 +18,7 @@ TASKS TO DO:
 10. Execute code + do graphs for report - 20 ---> Yen
 11. Write report - 20 --> Marta
 12. Create ssh file - 2 --> Peter
+
+Sameple Instruction to run the program for now (subject to change later):
+javac Basic2.java
+java Basic2 ../SampleTestCases/input1.txt
