@@ -11,6 +11,8 @@ public class Basic2 {
       String sequence2 = inputGenerator2(input);
       System.out.println(sequence1);
       System.out.println(sequence2);
+      MinimumPenalty computeM = new MinimumPenalty(sequence1, sequence2);
+      System.out.println("Minimum Penalty is " + computeM.getMinimumPenalty());
    }
 
    private static String inputGenerator1(InputExtract input){
@@ -61,6 +63,17 @@ public class Basic2 {
       }
       return s;
    }
+
+   /**private static int[][] tableMIntialization (String x, String y){
+      int m = x.length();
+      int n = y.length();
+      int tableSize = n + m + 1;
+      int tableM[][] = new int [tableSize][tableSize];
+      return tableM;
+   }
+    */
+
+
 }
 class InputExtract
 {
@@ -175,5 +188,59 @@ class InputExtract
       }
       return ret;
 
+   }
+}
+
+class MinimumPenalty{
+   private final static int pGap = 30;
+   private int[][] tableM;
+   private String sequence1;
+   private String sequence2;
+
+
+
+   public MinimumPenalty(String x, String y){
+      sequence1 = x;
+      sequence2 = y;
+      int tableSize = sequence1.length() + sequence2.length() + 1;
+      tableM = new int [tableSize][tableSize];
+   }
+
+   private int getMismatchPenalty(char x, char y){
+      int mismatch = 0;
+
+      if (x == y){
+         mismatch = 0;
+      }
+      else if ((x == 'A' && y == 'C') || (x == 'C' && y == 'A')){
+         mismatch = 110;
+      }
+      else if ((x == 'A' && y == 'G') || (x == 'G' && y == 'A')){
+         mismatch = 48;
+      }
+      else if ((x == 'A' && y == 'T') || (x == 'T' && y == 'A')){
+         mismatch = 94;
+      }
+       else if ((x == 'C' && y == 'G') || (x == 'G' && y == 'C')){
+         mismatch = 118;
+      }
+       else if ((x == 'C' && y == 'T') || (x == 'T' && y == 'C')){
+         mismatch = 48;
+      }
+       else if ((x == 'G' && y == 'T') || (x == 'T' && y == 'G')){
+         mismatch = 110;
+      }
+      return mismatch;
+   }
+
+   public int getMinimumPenalty(){
+      for (int i = 1; i <= sequence1.length(); i++){
+         for (int j = 1; j <= sequence2.length(); j++){
+            tableM[i][j] = Math.min(Math.min(tableM[i - 1][j - 1] + getMismatchPenalty(sequence1.charAt(i - 1), sequence2.charAt(j -1)),
+                                             tableM[i - 1][j] + pGap),
+                                             tableM[i][j-1] + pGap);
+         }
+      }
+      return tableM[sequence1.length()][sequence2.length()];
    }
 }
