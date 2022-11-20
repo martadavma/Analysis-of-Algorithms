@@ -63,6 +63,46 @@ public class Efficient {
       }
       return s;
    }
+   
+
+
+
+    
+
+
+
+
+    /*
+     * Finds the optimal split point between byte array x and array y
+     * X is always split down the middle which is floor(x.length/2)
+     * This function returns the optimal split point in y in the form of an integer
+     * WARNING this has not been tested yet as of 11/19
+     */
+    public static int findSplit(ByteArray x, ByteArray y)
+    {
+        int xSplit = x.length/2;
+        ByteArray xl = x.slice(0, xSplit);
+        ByteArray xr = x.slice(xSplit, x.length);
+
+        int[][] ml = computeM(xl, y);
+        int[][] mr = computeM(xr, y);
+
+        int splitCost = -1;
+        int split = -1;
+
+        for(int k = 0; k < y.length; k++)
+        {
+            int cost = ml[k][x.length-1] + mr[y.length-k][xr.length-1];
+            if(split == -1 || cost < splitCost)
+            {
+                splitCost = cost;
+                split = k;
+            }
+        }
+        return split;
+
+
+    }
 }
 class InputExtract
 {
@@ -243,4 +283,84 @@ class MinimumPenalty{
       }
       return tableM[sequence1.length()][sequence2.length()];
    }
+   
+    
+}
+
+
+/*
+* Stores an array of bytes and allows for taking subsections of the byte array without copying data
+* 
+* public ByteArray(int length) 
+* Constructor that breates a byte array of a specific length 
+* 
+* public ByteArray slice(int start, int end) 
+* create a sub array from start index to end index without copying data
+* 
+* public byte get(int index) 
+* get the value at a specific index
+* 
+* public byte set(int index, byte value)
+* set the value at a specific index to the value specified
+* 
+* final int length
+* The length of the byte array. You cannot modify this value
+*/
+class ByteArray
+{
+    private byte[] buffer;
+    private int start;
+    public final int length;
+
+
+    public ByteArray(int length)
+    {
+        buffer = new byte[length];
+        this.start = 0;
+        this.length = length;
+    }
+    private ByteArray(byte[] buffer, int start, int end)
+    {
+        this.buffer = buffer;
+        this.length = end-start;
+        this.start = start;
+        
+    }
+    public ByteArray slice(int start, int end)
+    {
+        if(end < 0) throw new RuntimeException("End index is negative " + end);
+        if(end > this.length) throw new RuntimeException("End index " + end + " is larger than the length of the array " + this.length);
+        if(start < 0) throw new RuntimeException("Start index is negative " + start);
+        if(start > this.length) throw new RuntimeException("Start index " + start + " is larger than the length of the array " + this.length);
+        return new ByteArray(buffer, this.start+start, this.start+end);
+    }
+    public byte get(int index)
+    {
+        if(index < 0) throw new RuntimeException("Cannot access negative index " + index);
+        if(index > this.length) throw new RuntimeException("Index " + index + " is larger than the length of the array " + this.length);
+        return buffer[index + this.start];
+    }
+    public void set(int index, byte value)
+    {
+        if(index < 0) throw new RuntimeException("Cannot access negative index " + index);
+        if(index > this.length) throw new RuntimeException("Index " + index + " is larger than the length of the array " + this.length);
+        buffer[index + this.start] = value;
+    }
+    public String toString()
+    {
+        String ret = "[";
+        for(int i = 0; i < this.length; i++)
+        {
+            ret += get(i) + ", ";
+        }
+        if(ret.endsWith(", "))
+        {
+            ret = ret.substring(0, ret.length()-2);
+        }
+        ret += "]";
+        
+        return ret;
+
+    }
+
 }
