@@ -9,8 +9,7 @@ public class Efficient
 {
     public static final byte A = (byte)0, T = (byte)1, C = (byte)2, G = (byte)3, GAP = (byte)4;
     public static void main (String[] args)
-    {
-        
+    { 
         InputExtract input = new InputExtract(args);
         ByteArray sequence1 = input.getSequence1();
         ByteArray sequence2 = input.getSequence2();

@@ -3,7 +3,7 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 import java.util.ArrayList;
 
-public class Basic2 {
+public class Basic {
    public static void main(String[] args) {
       InputExtract input = new InputExtract(args);
       String sequence1 = inputGenerator1(input);
@@ -12,10 +12,15 @@ public class Basic2 {
       System.out.println(sequence2);
       MinimumPenalty computeM = new MinimumPenalty(sequence1, sequence2);
       int[][] matrixM = computeM.getMinimumPenalty();
-      System.out.println("Minimum Penalty is " + matrixM);
+      System.out.println("Minimum Penalty is " + matrixM[sequence1.length()][sequence2.length()]);
 
       // compute the final optimal alignment
-      byte[][] optAlignment = computeOptimalAlignment(matrixM);
+      char[][] optAlignment = computeOptimalAlignment(matrixM,
+            sequence1, sequence2);
+
+      System.out.println("The optimal alignment starts with A: " + matrixM[0][0]
+            + " and B: " + matrixM[1][0]);
+
    }
 
    private static String inputGenerator1(InputExtract input) {
@@ -70,11 +75,14 @@ public class Basic2 {
     * input: matrix M
     * output: array with opotimal sequence alignment
     */
-   public static byte[][] computeOptimalAlignment(int[][] m) {
+   public static char[][] computeOptimalAlignment(int[][] m, String sequenceA, String sequenceB) {
       // The best is at position M(i=n, j=m)
+      int lenSequenceA = sequenceA.length();
+      int lenSequenceB = sequenceB.length();
       // We are going to do recursion through M to get the actual best
-      byte[][] opt = findNextOpt(m, lenSequenceA, lenSequenceB,
-            new byte[2][lenSequenceA + lenSequenceB], lenSequenceA + lenSequenceB);
+      char[][] opt = findNextOpt(m, lenSequenceA - 1, lenSequenceB - 1,
+            new char[2][lenSequenceA + lenSequenceB], lenSequenceA + lenSequenceB - 1,
+            sequenceA, sequenceB);
       return opt;
    }
 
@@ -88,34 +96,67 @@ public class Basic2 {
     * @return
     *         0 = A, 1 = T, 2 = C, 3 = G, " " = 4
     */
-   public static byte[][] findNextOpt(int[][] m, int i, int j, byte[][] currentOpt,
-         int counter) {
+   public static char[][] findNextOpt(int[][] m, int i, int j, char[][] currentOpt,
+         int counter, String sequenceA, String sequenceB) {
       // recursion done, solution find.
-      if (i == 0 && j == 0) {
+      if (i == 0 || j == 0 || counter == 0) {
+         System.out.println("--- cnt: " + counter + " --- i: " + i + " --- j: " + j);
          return currentOpt;
       }
-
       // on alpha matrix 0 = A, 1 = T, 2 = C, 3 = G.
       // match i with j
-      else if (m[i][j] == (alpha[sequenceA[i]][sequenceB[j]] + m[i - 1][j - 1])) {
-         currentOpt[0][counter] = sequenceA[i];
-         currentOpt[1][counter] = sequenceB[j];
-         return findNextOpt(m, i - 1, j - 1, currentOpt, counter - 1);
+      else if (m[i][j] == (getMismatchPenalty(sequenceA.charAt(i),sequenceB.charAt(j)) + m[i - 1][j - 1])) {
+         System.out.println("--- cnt: " + counter + " --- i: " + i + " --- j: " + j);
+         currentOpt[0][counter] = sequenceA.charAt(i);
+         currentOpt[1][counter] = sequenceB.charAt(j);
+         return findNextOpt(m, i - 1, j - 1, currentOpt, counter - 1, sequenceA, sequenceB);
       }
 
       // space in sequence B
-      else if (m[i][j] == (delta + m[i - 1][j])) {
-         currentOpt[0][counter] = sequenceA[i];
+      else if (m[i][j] == (30 + m[i - 1][j])) {
+         System.out.println("--- cnt: " + counter + " --- i: " + i + " --- j: " + j);
+         currentOpt[0][counter] = sequenceA.charAt(i);
          currentOpt[1][counter] = 4;
-         return findNextOpt(m, i - 1, j, currentOpt, counter - 1);
+         return findNextOpt(m, i - 1, j, currentOpt, counter - 1, sequenceA, sequenceB);
       }
 
-      // space in sequence B
-      else {// if (m[i][j] == (delta + m[i][j-1])){
+      // space in sequence A
+      else if (m[i][j] == (30 + m[i][j-1])){
+         System.out.println("--- cnt: " + counter + " --- i: " + i + " --- j: " + j);
          currentOpt[0][counter] = 4;
-         currentOpt[1][counter] = sequenceA[j];
-         return findNextOpt(m, i, j - 1, currentOpt, counter - 1);
+         currentOpt[1][counter] = sequenceA.charAt(j);
+         return findNextOpt(m, i, j - 1, currentOpt, counter - 1, sequenceA, sequenceB);
       }
+
+      //else there is an error
+      else{
+         System.out.println("ERROR - no match between penalty matrix and sequence");
+         return currentOpt;
+      }
+   }
+
+   /**
+    * Get mismatch penalty between char x and char y.
+    */
+   private static int getMismatchPenalty(char x, char y) {
+      int mismatch = 0;
+
+      if (x == y) {
+         mismatch = 0;
+      }else if ((x == 'A' && y == 'C') || (x == 'C' && y == 'A')) {
+         mismatch = 110;
+      } else if ((x == 'A' && y == 'G') || (x == 'G' && y == 'A')) {
+         mismatch = 48;
+      } else if ((x == 'A' && y == 'T') || (x == 'T' && y == 'A')) {
+         mismatch = 94;
+      } else if ((x == 'C' && y == 'G') || (x == 'G' && y == 'C')) {
+         mismatch = 118;
+      } else if ((x == 'C' && y == 'T') || (x == 'T' && y == 'C')) {
+         mismatch = 48;
+      } else if ((x == 'G' && y == 'T') || (x == 'T' && y == 'G')) {
+         mismatch = 110;
+      }
+      return mismatch;
    }
 }
 
