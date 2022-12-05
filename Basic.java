@@ -283,6 +283,11 @@ class MinimumPenalty {
       sequence2 = y;
       int tableSize = sequence1.length() + sequence2.length() + 1;
       tableM = new int[tableSize][tableSize];
+      
+      for (int i = 0; i <= tableSize - 1; i++){
+         tableM[i][0] = i * pGap;
+         tableM[0][i] = i * pGap;
+      }
    }
 
    /**
