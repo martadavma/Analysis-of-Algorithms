@@ -1,116 +1,285 @@
-/* This class is the main class of the Vasic Dynamic Programming Method.
- * 
- * Given an input.txt file it performs the necessary operations to fill
- * the given output.txt with the optimal sequence alignmenet for DNA.
- */ 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+import java.util.ArrayList;
 
-public class Basic {
+public class Basic2 {
+   public static void main(String[] args) {
+      InputExtract input = new InputExtract(args);
+      String sequence1 = inputGenerator1(input);
+      String sequence2 = inputGenerator2(input);
+      System.out.println(sequence1);
+      System.out.println(sequence2);
+      MinimumPenalty computeM = new MinimumPenalty(sequence1, sequence2);
+      int[][] matrixM = computeM.getMinimumPenalty();
+      System.out.println("Minimum Penalty is " + matrixM);
 
-    // sequence A
-    public static byte[] sequenceA;
+      // compute the final optimal alignment
+      byte[][] optAlignment = computeOptimalAlignment(matrixM);
+   }
 
-    // length of sequence A
-    public static int lenSequenceA;
+   private static String inputGenerator1(InputExtract input) {
+      byte[] sequence1 = input.getSequence1();
+      String s = "";
+      for (byte b : sequence1) {
+         switch (b) {
+            case 0:
+               s += "A";
+               break;
+            case 1:
+               s += "T";
+               break;
+            case 2:
+               s += "C";
+               break;
+            case 3:
+               s += "G";
+               break;
+         }
 
-    // sequence B
-    public static byte[] sequenceB;
+      }
+      return s;
+   }
 
-    // length of sequence B
-    public static int lenSequenceB;
+   private static String inputGenerator2(InputExtract input) {
+      byte[] sequence2 = input.getSequence2();
+      String s = "";
+      for (byte b : sequence2) {
+         switch (b) {
+            case 0:
+               s += "A";
+               break;
+            case 1:
+               s += "T";
+               break;
+            case 2:
+               s += "C";
+               break;
+            case 3:
+               s += "G";
+               break;
+         }
 
-    // matrix containing all alpha 0 = A, 1 = T, 2 = C, 3 = G.
-    public static int[][] alpha;
+      }
+      return s;
+   }
 
-    // delta, cost of puting a space
-    public static int delta;
+   /*
+    * This method computes the final optimal aligment given matrix M
+    * 
+    * input: matrix M
+    * output: array with opotimal sequence alignment
+    */
+   public static byte[][] computeOptimalAlignment(int[][] m) {
+      // The best is at position M(i=n, j=m)
+      // We are going to do recursion through M to get the actual best
+      byte[][] opt = findNextOpt(m, lenSequenceA, lenSequenceB,
+            new byte[2][lenSequenceA + lenSequenceB], lenSequenceA + lenSequenceB);
+      return opt;
+   }
 
-    /**
-     * Main method
-     * 
-     * @param args
-     */
-    public static void main(String[] args) {
+   /**
+    * Tail recursive method to avoid memory waist
+    * 
+    * @param m
+    * @param i
+    * @param j
+    * @param currentOpt
+    * @return
+    *         0 = A, 1 = T, 2 = C, 3 = G, " " = 4
+    */
+   public static byte[][] findNextOpt(int[][] m, int i, int j, byte[][] currentOpt,
+         int counter) {
+      // recursion done, solution find.
+      if (i == 0 && j == 0) {
+         return currentOpt;
+      }
 
-        // create InputExtract instance
-        InputExtract inputExtract = new InputExtract(args);
-        sequenceA = inputExtract.getSequenceA();
-        sequenceB = inputExtract.getSequenceB();
+      // on alpha matrix 0 = A, 1 = T, 2 = C, 3 = G.
+      // match i with j
+      else if (m[i][j] == (alpha[sequenceA[i]][sequenceB[j]] + m[i - 1][j - 1])) {
+         currentOpt[0][counter] = sequenceA[i];
+         currentOpt[1][counter] = sequenceB[j];
+         return findNextOpt(m, i - 1, j - 1, currentOpt, counter - 1);
+      }
 
-        // compute M from both sequences
-        int[][] m = computeM(sequenceA, sequenceB);
+      // space in sequence B
+      else if (m[i][j] == (delta + m[i - 1][j])) {
+         currentOpt[0][counter] = sequenceA[i];
+         currentOpt[1][counter] = 4;
+         return findNextOpt(m, i - 1, j, currentOpt, counter - 1);
+      }
 
-        // compute the final optimal alignment
-        byte[][] optAlignment = computeOptimalAlignment(m);
+      // space in sequence B
+      else {// if (m[i][j] == (delta + m[i][j-1])){
+         currentOpt[0][counter] = 4;
+         currentOpt[1][counter] = sequenceA[j];
+         return findNextOpt(m, i, j - 1, currentOpt, counter - 1);
+      }
+   }
+}
 
-        // OuputGenerator overwrites the output.txt file.
-        // Basic can terminate afterwards
-        new OutputGenerator(optAlignment, args);
+class InputExtract {
+   private String[] args;
 
-        // terminate
-    }
+   /*
+    * String[] args: The command line arguments given by the user, where the
+    * first element contains the name of the file containing the sequences
+    * to be loaded
+    */
+   public InputExtract(String[] args) {
+      this.args = args;
+   }
 
-    /*
-     * This method generates the M matrix
-     * 
-     * input: initalMatrix
-     * output: M matrix (#TODO: I put 3 dimentions, this can be changed)
-     */
-    public static int[][][][] computeM(byte[] sequenceA, byte[] sequenceB) {
+   /*
+    *
+    * Returns the first DNA sequence in the file, in the form of a byte array where
+    * 0=A, 1=T, 2=C, 3=G
+    */
+   public byte[] getSequence1() {
+      return getSequenceI(args[0], 1);
+   }
 
-        return null;
-    }
+   /*
+    *
+    * Returns the second DNA sequence in the file, in the form of a byte array
+    * where 0=A, 1=T, 2=C, 3=G
+    */
+   public byte[] getSequence2() {
+      return getSequenceI(args[0], 2);
+   }
 
-    /*
-     * This method computes the final optimal aligment given matrix M
-     * 
-     * input: matrix M
-     * output: array with opotimal sequence alignment
-     */
-    public static byte[][] computeOptimalAlignment(int[][] m) {
-        // The best is at position M(i=n, j=m)
-        // We are going to do recursion through M to get the actual best
-        byte[][] opt = findNextOpt(m, lenSequenceA, lenSequenceB,
-                new byte[2][lenSequenceA + lenSequenceB], lenSequenceA + lenSequenceB);
-        return opt;
-    }
+   /*
+    * String inputFile: The input file which contains the sequences
+    * int se: The sequence number of the sequence you wish to get (either 1 or 2)
+    *
+    * Returns the DNA sequence in a byte array, where 0=A, 1=T, 2=C, 3=G
+    */
+   public byte[] getSequenceI(String inputFile, int se) {
+      ArrayList<String> file = loadFile(inputFile);
+      String base = null;
+      ArrayList<Integer> indexes = null;
+      int j = 0;
+      for (int p = 0; p < se; p++) {
+         base = null;
+         indexes = new ArrayList<>();
+         for (; j < file.size(); j++) {
+            if (file.get(j).trim().length() == 0)
+               continue;
+            try {
+               int x = Integer.parseInt(file.get(j));
+               indexes.add(x);
+            } catch (Exception e) {
+               if (base == null)
+                  base = file.get(j);
+               else
+                  break;
+            }
+         }
+      }
 
-    /**
-     * Tail recursive method to avoid memory waist
-     * 
-     * @param m
-     * @param i
-     * @param j
-     * @param currentOpt
-     * @return
-     *  0 = A, 1 = T, 2 = C, 3 = G, " " = 4
-     */
-    public static byte[][] findNextOpt(int[][] m, int i, int j, byte[][] currentOpt, 
-        int counter){
-        // recursion done, solution find.
-        if (i == 0 && j == 0  ){
-            return currentOpt;
-        }
+      String output = base;
+      output = output.toUpperCase();
+      for (int index : indexes) {
+         output = output.substring(0, index + 1) + output + output.substring(index + 1);
+      }
 
-        // on alpha matrix 0 = A, 1 = T, 2 = C, 3 = G.
-        // match i with j
-        else if (m[i][j] == (alpha[sequenceA[i]][sequenceB[j]] + m[i-1][j-1])){
-            currentOpt[0][counter] = sequenceA[i];
-            currentOpt[1][counter] = sequenceB[j];
-            return findNextOpt(m, i-1, j-1, currentOpt, counter -1);
-        }
+      byte[] outputBytes = new byte[output.length()];
 
-        // space in sequence B
-        else if (m[i][j] == (delta + m[i-1][j])){
-            currentOpt[0][counter] = sequenceA[i];
-            currentOpt[1][counter] = 4;
-            return findNextOpt(m, i-1, j, currentOpt, counter -1);
-        }
-        
-        // space in sequence B
-        else {// if (m[i][j] == (delta + m[i][j-1])){
-            currentOpt[0][counter] = 4;
-            currentOpt[1][counter] = sequenceA[j];
-            return findNextOpt(m, i, j-1, currentOpt, counter - 1);
-        }
-    }
+      for (int i = 0; i < outputBytes.length; i++) {
+         switch (output.charAt(i)) {
+            case 'A':
+               outputBytes[i] = 0;
+               break;
+            case 'T':
+               outputBytes[i] = 1;
+               break;
+            case 'C':
+               outputBytes[i] = 2;
+               break;
+            case 'G':
+               outputBytes[i] = 3;
+               break;
+         }
+      }
+
+      return outputBytes;
+   }
+
+   private static ArrayList<String> loadFile(String fileName) {
+      ArrayList<String> ret = new ArrayList<String>();
+      try {
+         File f = new File(fileName);
+         Scanner r = new Scanner(f);
+         while (r.hasNextLine()) {
+            String data = r.nextLine();
+            ret.add(data);
+         }
+      } catch (FileNotFoundException e) {
+         throw new RuntimeException(e.toString());
+      }
+      return ret;
+
+   }
+}
+
+/**
+ * MinimumPenalty class computes the minimum penalty of an alignment between
+ * sequence X and Sequence Y.
+ */
+class MinimumPenalty {
+
+   private final static int pGap = 30;
+   private int[][] tableM;
+   private String sequence1;
+   private String sequence2;
+
+   /**
+    * Construct MinimumPenalty object using String x and String y.
+    */
+   public MinimumPenalty(String x, String y) {
+      sequence1 = x;
+      sequence2 = y;
+      int tableSize = sequence1.length() + sequence2.length() + 1;
+      tableM = new int[tableSize][tableSize];
+   }
+
+   /**
+    * Get mismatch penalty between char x and char y.
+    */
+   private int getMismatchPenalty(char x, char y) {
+      int mismatch = 0;
+
+      if (x == y) {
+         mismatch = 0;
+      } else if ((x == 'A' && y == 'C') || (x == 'C' && y == 'A')) {
+         mismatch = 110;
+      } else if ((x == 'A' && y == 'G') || (x == 'G' && y == 'A')) {
+         mismatch = 48;
+      } else if ((x == 'A' && y == 'T') || (x == 'T' && y == 'A')) {
+         mismatch = 94;
+      } else if ((x == 'C' && y == 'G') || (x == 'G' && y == 'C')) {
+         mismatch = 118;
+      } else if ((x == 'C' && y == 'T') || (x == 'T' && y == 'C')) {
+         mismatch = 48;
+      } else if ((x == 'G' && y == 'T') || (x == 'T' && y == 'G')) {
+         mismatch = 110;
+      }
+      return mismatch;
+   }
+
+   /**
+    * Compute and return the minimum penalty using MinimumPenalty object.
+    */
+   public int[][] getMinimumPenalty() {
+      for (int i = 1; i <= sequence1.length(); i++) {
+         for (int j = 1; j <= sequence2.length(); j++) {
+            tableM[i][j] = Math.min(
+                  Math.min(tableM[i - 1][j - 1] + getMismatchPenalty(sequence1.charAt(i - 1), sequence2.charAt(j - 1)),
+                        tableM[i - 1][j] + pGap),
+                  tableM[i][j - 1] + pGap);
+         }
+      }
+      return tableM;
+   }
 }
