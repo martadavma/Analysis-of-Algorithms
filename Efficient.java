@@ -4,6 +4,7 @@ import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.io.PrintWriter;
 
 public class Efficient
 {
@@ -13,11 +14,69 @@ public class Efficient
         InputExtract input = new InputExtract(args);
         ByteArray sequence1 = input.getSequence1();
         ByteArray sequence2 = input.getSequence2();
-        Tuple<Integer, Alignment> alignment = findAlignment(sequence1, sequence2);
-        System.out.println("alignment is ");
-        System.out.println(alignment.b);
-        System.out.println("and the cost is " + alignment.b.calcCost() + " ("+ alignment.a + ")");
+
+        double start = getTimeInMilliseconds();
+        double beforeUsedMem = getMemoryInKB();
+        Tuple<Integer, Alignment> costAndAlignment = findAlignment(sequence1, sequence2);
+        double afterUsedMem = getMemoryInKB();
+        double end = getTimeInMilliseconds();
+        double timeTaken = end - start;
+
+        double totalUsage = afterUsedMem - beforeUsedMem;
+
+        output(args, costAndAlignment.a, costAndAlignment.b, timeTaken, totalUsage);
     }
+    
+    /*
+     * Writes result to an output file 
+     * 
+     * String[] Args is the original args array that the user inputted (second value is the output file name)
+     * int cost is the cost of the final alignment (will be written to the first line of the output file)
+     * Alignment a is the actual alignment object (will be written to 2nd and 3rd lines of output file)
+     * double time is the time that the execution took (will be written to the 4th line of the output file)
+     * double mem is the amount of memeory that the execution took (will be written to the 5th line of the output file)
+     */
+    public static void output(String[] args, int cost, Alignment a, double time, double mem)
+    {
+        if(args.length < 2)
+        {
+            System.out.println("User must input two arguments. Program only received " + args.length + " arguments");
+            return;
+        }
+        try
+        {
+            PrintWriter writer = new PrintWriter(args[1], "UTF-8");
+            writer.println(cost);
+            writer.println(a.getXString());
+            writer.println(a.getYString());
+            writer.println(time);
+            writer.println(mem);
+            writer.close();
+        }
+        catch(Exception f)
+        {
+            System.out.println("???");
+        }
+    }
+    
+    /*
+     * Gets currently used memory
+     */
+    public static double getMemoryInKB()
+    {
+        double total = Runtime.getRuntime().totalMemory();
+        return (total - Runtime.getRuntime().freeMemory())/10e3;
+    }
+    
+    
+    /*
+     * Gets time in milliseconds with nanosecond accuracy
+     */
+    public static double getTimeInMilliseconds()
+    {
+        return System.nanoTime()/10e6;
+    }
+    
     
     /*
      * This function executes the entire alignment algorithm using the 
@@ -740,7 +799,7 @@ class Alignment
         x.next = a;
     } 
     
-    private String getXString()
+    public String getXString()
     {
         String ret = "";
         Alignment a = this;
@@ -766,7 +825,7 @@ class Alignment
         }
         return ret;
     }
-    private String getYString()
+    public String getYString()
     {
         String ret = "";
         Alignment a = this;
