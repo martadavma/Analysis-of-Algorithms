@@ -2,6 +2,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 import java.util.ArrayList;
+import java.io.PrintWriter;
 
 public class Basic {
 
@@ -11,22 +12,86 @@ public class Basic {
    // Where the alignmenet starts in the matrice above
    public static int startingPointFinalAlignment;
 
-   public static void main(String[] args) {
+   public static void main(String[] args) 
+   {
       InputExtract input = new InputExtract(args);
       String sequence1 = inputGenerator1(input);
       String sequence2 = inputGenerator2(input);
-      System.out.println(sequence1);
-      System.out.println(sequence2);
+      //System.out.println(sequence1);
+      //System.out.println(sequence2);
+      double start = getTimeInMilliseconds();
+      double beforeUsedMem = getMemoryInKB();
       MinimumPenalty computeM = new MinimumPenalty(sequence1, sequence2);
       int[][] matrixM = computeM.getMinimumPenalty();
-      System.out.println("Minimum Penalty is " + matrixM[sequence1.length()][sequence2.length()]);
 
       // compute the final optimal alignment
-      finalAlignment = computeOptimalAlignment(matrixM,
-            sequence1, sequence2);
+      finalAlignment = computeOptimalAlignment(matrixM, sequence1, sequence2);
 
-      System.out.println("The optimal alignment starts with A: " + finalAlignment[0][startingPointFinalAlignment + 1]
-            + " and B: " + finalAlignment[1][startingPointFinalAlignment + 1]);
+      double afterUsedMem = getMemoryInKB();
+      double end = getTimeInMilliseconds();
+      double timeTaken = end - start;
+      double totalUsage = afterUsedMem - beforeUsedMem;
+
+
+
+      output(args, matrixM[sequence1.length()][sequence2.length()], finalAlignment, timeTaken, totalUsage);
+   }
+   /*
+   * Writes result to an output file 
+   * 
+   * String[] Args is the original args array that the user inputted (second value is the output file name)
+   * int cost is the cost of the final alignment (will be written to the first line of the output file)
+   * Alignment a is the actual alignment object (will be written to 2nd and 3rd lines of output file)
+   * double time is the time that the execution took (will be written to the 4th line of the output file)
+   * double mem is the amount of memeory that the execution took (will be written to the 5th line of the output file)
+   */
+   public static void output(String[] args, int cost, char[][] a, double time, double mem)
+   {
+      if(args.length < 2)
+      {
+         System.out.println("User must input two arguments. Program only received " + args.length + " arguments");
+         return;
+      }
+      try
+      {
+         String x = "";
+         String y = "";
+         for(int i = startingPointFinalAlignment+1; i < a[0].length; i++)
+         {
+            x += a[0][i] == ' '? '_' : a[0][i];
+            y += a[1][i] == ' '? '_' : a[1][i]; 
+         }
+
+         PrintWriter writer = new PrintWriter(args[1], "UTF-8");
+         writer.println(cost);
+         writer.println(x);
+         writer.println(y);
+         writer.println(time);
+         writer.println(mem);
+         writer.close();
+      }
+      catch(Exception f)
+      {
+         System.out.println("???");
+      }
+   }
+   
+   /*
+   * Gets currently used memory
+   */
+   public static double getMemoryInKB()
+   {
+      double total = Runtime.getRuntime().totalMemory();
+      return (total - Runtime.getRuntime().freeMemory())/10e3;
+   }
+   
+   
+   /*
+   * Gets time in milliseconds with nanosecond accuracy
+   */
+   public static double getTimeInMilliseconds()
+   {
+      return System.nanoTime()/10e6;
    }
 
    private static String inputGenerator1(InputExtract input) {
@@ -106,47 +171,33 @@ public class Basic {
          int counter, String sequenceA, String sequenceB) {
 
       // recursion done, solution found.
-      if (counter == 1){ // ALL DONE
+      if (i==-1 && j==-1){ // ALL DONE
+         //System.out.println("DONE");
          startingPointFinalAlignment = counter;
          finalAlignment = currentOpt;
          return currentOpt;
       }
-      if (i == 1) { // Sequence A done, spaces for sequence B
-         for (int s = 1; s <= j; s ++){
-            currentOpt[1][s] = ' ';
-         }
-         startingPointFinalAlignment = counter;
-         finalAlignment = currentOpt;
-         return currentOpt;
-      }
-      if (j == 1) { // Sequence B done, spaces for sequence A
-         for (int s = 1; s <= i; s ++){
-            currentOpt[0][s] = ' ';
-         }
-         startingPointFinalAlignment = counter;
-         finalAlignment = currentOpt;
-         return currentOpt;
-      }
+      
 
       // on alpha matrix 0 = A, 1 = T, 2 = C, 3 = G.
       // match i with j
-      else if (m[i+1][j+1] == ((getMismatchPenalty(sequenceA.charAt(i),sequenceB.charAt(j))) + m[i - 1+1][j - 1+1])) {
+      else if (i > -1 && j > -1 && m[i+1][j+1] == ((getMismatchPenalty(sequenceA.charAt(i),sequenceB.charAt(j))) + m[i][j])) {
          currentOpt[0][counter] = sequenceA.charAt(i);
          currentOpt[1][counter] = sequenceB.charAt(j);
          return findNextOpt(m, i - 1, j - 1, currentOpt, counter - 1, sequenceA, sequenceB);
       }
 
       // space in sequence B
-      else if (m[i+1][j+1] == (30 + m[i - 1+1][j+1])) {
+      else if (i > -1 && m[i+1][j+1] == (30 + m[i][j+1])) {
          currentOpt[0][counter] = sequenceA.charAt(i);
          currentOpt[1][counter] = ' ';
          return findNextOpt(m, i -1 , j, currentOpt, counter - 1, sequenceA, sequenceB);
       }
 
       // space in sequence A
-      else if (m[i+1][j+1] == (30 + m[i+1][j-1+1])){
+      else if (j > -1 && m[i+1][j+1] == (30 + m[i+1][j])){
          currentOpt[0][counter] = ' ';
-         currentOpt[1][counter] = sequenceA.charAt(j);
+         currentOpt[1][counter] = sequenceB.charAt(j);
          return findNextOpt(m, i, j - 1, currentOpt, counter - 1, sequenceA, sequenceB);
       }
 
