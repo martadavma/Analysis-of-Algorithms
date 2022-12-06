@@ -15,7 +15,7 @@ TASKS TO DO:
 7. Develop divide method - 10 ---> Peter 
 8. Develop conquer method - 10 ---> Marta
 9. Develop Ouput generator - 15 ---> Peter
-10. Execute code + do graphs for report - 20 ---> Yen
+10. Execute code + do graphs for report - 20 ---> Yen || DONE
 11. Write report - 20 --> Marta
 12. Create ssh file - 2 --> Peter
 
