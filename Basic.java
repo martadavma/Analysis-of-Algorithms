@@ -4,6 +4,13 @@ import java.util.Scanner;
 import java.util.ArrayList;
 
 public class Basic {
+
+   // Final Alignmenet to be accessible by other classes.
+   public static char[][] finalAlignment;
+
+   // Where the alignmenet starts in the matrice above
+   public static int startingPointFinalAlignment;
+
    public static void main(String[] args) {
       InputExtract input = new InputExtract(args);
       String sequence1 = inputGenerator1(input);
@@ -15,12 +22,11 @@ public class Basic {
       System.out.println("Minimum Penalty is " + matrixM[sequence1.length()][sequence2.length()]);
 
       // compute the final optimal alignment
-      char[][] optAlignment = computeOptimalAlignment(matrixM,
+      finalAlignment = computeOptimalAlignment(matrixM,
             sequence1, sequence2);
 
-      System.out.println("The optimal alignment starts with A: " + matrixM[0][0]
-            + " and B: " + matrixM[1][0]);
-
+      System.out.println("The optimal alignment starts with A: " + finalAlignment[0][startingPointFinalAlignment + 1]
+            + " and B: " + finalAlignment[1][startingPointFinalAlignment + 1]);
    }
 
    private static String inputGenerator1(InputExtract input) {
@@ -80,7 +86,7 @@ public class Basic {
       int lenSequenceA = sequenceA.length();
       int lenSequenceB = sequenceB.length();
       // We are going to do recursion through M to get the actual best
-      char[][] opt = findNextOpt(m, lenSequenceA - 1, lenSequenceB - 1,
+      char[][] opt = findNextOpt(m, lenSequenceA-1, lenSequenceB-1,
             new char[2][lenSequenceA + lenSequenceB], lenSequenceA + lenSequenceB - 1,
             sequenceA, sequenceB);
       return opt;
@@ -98,32 +104,48 @@ public class Basic {
     */
    public static char[][] findNextOpt(int[][] m, int i, int j, char[][] currentOpt,
          int counter, String sequenceA, String sequenceB) {
-      // recursion done, solution find.
-      if (i == 0 || j == 0 || counter == 0) {
-         System.out.println("--- cnt: " + counter + " --- i: " + i + " --- j: " + j);
+
+      // recursion done, solution found.
+      if (counter == 1){ // ALL DONE
+         startingPointFinalAlignment = counter;
+         finalAlignment = currentOpt;
          return currentOpt;
       }
+      if (i == 1) { // Sequence A done, spaces for sequence B
+         for (int s = 1; s <= j; s ++){
+            currentOpt[1][s] = ' ';
+         }
+         startingPointFinalAlignment = counter;
+         finalAlignment = currentOpt;
+         return currentOpt;
+      }
+      if (j == 1) { // Sequence B done, spaces for sequence A
+         for (int s = 1; s <= i; s ++){
+            currentOpt[0][s] = ' ';
+         }
+         startingPointFinalAlignment = counter;
+         finalAlignment = currentOpt;
+         return currentOpt;
+      }
+
       // on alpha matrix 0 = A, 1 = T, 2 = C, 3 = G.
       // match i with j
-      else if (m[i][j] == (getMismatchPenalty(sequenceA.charAt(i),sequenceB.charAt(j)) + m[i - 1][j - 1])) {
-         System.out.println("--- cnt: " + counter + " --- i: " + i + " --- j: " + j);
+      else if (m[i+1][j+1] == ((getMismatchPenalty(sequenceA.charAt(i),sequenceB.charAt(j))) + m[i - 1+1][j - 1+1])) {
          currentOpt[0][counter] = sequenceA.charAt(i);
          currentOpt[1][counter] = sequenceB.charAt(j);
          return findNextOpt(m, i - 1, j - 1, currentOpt, counter - 1, sequenceA, sequenceB);
       }
 
       // space in sequence B
-      else if (m[i][j] == (30 + m[i - 1][j])) {
-         System.out.println("--- cnt: " + counter + " --- i: " + i + " --- j: " + j);
+      else if (m[i+1][j+1] == (30 + m[i - 1+1][j+1])) {
          currentOpt[0][counter] = sequenceA.charAt(i);
-         currentOpt[1][counter] = 4;
-         return findNextOpt(m, i - 1, j, currentOpt, counter - 1, sequenceA, sequenceB);
+         currentOpt[1][counter] = ' ';
+         return findNextOpt(m, i -1 , j, currentOpt, counter - 1, sequenceA, sequenceB);
       }
 
       // space in sequence A
-      else if (m[i][j] == (30 + m[i][j-1])){
-         System.out.println("--- cnt: " + counter + " --- i: " + i + " --- j: " + j);
-         currentOpt[0][counter] = 4;
+      else if (m[i+1][j+1] == (30 + m[i+1][j-1+1])){
+         currentOpt[0][counter] = ' ';
          currentOpt[1][counter] = sequenceA.charAt(j);
          return findNextOpt(m, i, j - 1, currentOpt, counter - 1, sequenceA, sequenceB);
       }
